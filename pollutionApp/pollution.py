@@ -1,6 +1,7 @@
 from django.db import connection
 from django.http import JsonResponse  # Import JsonResponse
 from rest_framework.views import APIView
+from pollutionApp.queries import *
 
 # query = """
 #     SELECT *
@@ -9,13 +10,60 @@ from rest_framework.views import APIView
 #     AND start >= (SELECT MAX("end") FROM public.pocairpollution_latest) - interval %s
 #     AND state = %s;
 # """
-query = """
- SELECT start, "end", state, count_pollutants_co2, sum_pollutants_co2, avg_pollutants_co2, aggr_param, aggr_value 
-    FROM public.pocairpollution_integration_persist 
-    WHERE "end" <= (SELECT MAX("end") FROM public.pocairpollution_integration_persist)
-    AND start >= (SELECT MAX("end") FROM public.pocairpollution_integration_persist) - interval %s
-"""
 
+
+
+
+class GetStates(APIView):
+    def get(self, request):
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(get_states)
+                rows = cursor.fetchall()
+                states = []
+                for row in rows:
+                    states.append({
+                        'state_id': row[0],
+                        'state_name': row[1]
+                    })
+                return JsonResponse(states, safe=False)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+class GetCities(APIView):
+    def get(self, request):
+        try:
+            state = request.query_params.get("state")
+
+            with connection.cursor() as cursor:
+                cursor.execute(get_cities,(state,))
+                rows = cursor.fetchall()
+                cities = []
+                for row in rows:
+                    cities.append({
+                        'city_id': row[0],
+                        'city_name': row[1]
+                    })
+                return JsonResponse(cities, safe=False)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+class GetRegions(APIView):
+    def get(self, request):
+        try:
+            city = request.query_params.get("city")
+            with connection.cursor() as cursor:
+                cursor.execute(get_regions,(city,))
+                rows = cursor.fetchall()
+                regions = []
+                for row in rows:
+                    regions.append({
+                        'city_id': row[0],
+                        'city_name': row[1]
+                    })
+                return JsonResponse(regions, safe=False)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
 
 class GetAirQuality(APIView):
     def get(self, request):
@@ -28,7 +76,7 @@ class GetAirQuality(APIView):
             region = request.query_params.get("region")
             # agg_param2 = 'Region'
             with connection.cursor() as cursor:
-                cursor.execute(query, (time_interval,))
+                cursor.execute(get_pollutants_data, (time_interval,))
                 rows = cursor.fetchall()
 
                 # Process rows to format the response data
@@ -44,38 +92,19 @@ class GetAirQuality(APIView):
                         'aggr_param': row[6],
                         'aggr_value': row[7],
                     })
-                # filtered_data = [
-                #     row for row in data
-                #     # if (city.lower() in row['aggr_value'].lower() if city else True) and
-                #     #    (region.lower() in row['aggr_value'].lower() if region else True)
-                #     if ( state !== 'allstates' and  row['state'.lower ==  and state]) or
-                #     (row['aggr_param'].lower() == 'city' and city.lower() in row['aggr_value'].lower() and city ) or
-                #        (row['aggr_param'].lower() == 'region' and region.lower() in row['aggr_value'].lower() and region)
-                # ]
 
-                # filtered_data = [
-                #     row for row in data
-                #     if (
-                #             (state.lower() == 'allstates' or row['state'].lower() == state.lower()) and
-                #             ((city.lower() == 'allcities' or (row['aggr_param'].lower() == 'city' and city.lower() in row['aggr_value'].lower())) or
-                #             (region.lower() == 'allregions' or (row['aggr_param'].lower() == 'region' and region.lower() in row['aggr_value'].lower())))
-                #     )
-                # ]
                 filtered_data = [
                     row for row in data
                     if (
-                        # If state is 'allstates', no filtering is applied for cities or regions
+                        # If state is 'allstates', no filtering is required as we get all states data
                             (state.lower() == 'allstates') or
-                            # If city is 'allcities', filter only on state and city (ignore region)
+                            # If city is 'allcities', filter based on state and city (region filter is not required here)
                             (city.lower() == 'allcities' and row['state'].lower() == state.lower()) or
-                            # If region is 'allregions', filter on state, city, and region
-                            (region.lower() == 'allregions' and
-                             row['state'].lower() == state.lower() and
+                            # If region is 'allregions', filter with state, city, and region
+                            (region.lower() == 'allregions' and row['state'].lower() == state.lower() and
                              (row['aggr_param'].lower() == 'city' and city.lower() in row['aggr_value'].lower()) or
-                             # (row['aggr_param'].lower() == 'region' and region.lower() in row['aggr_value'].lower())) or
-                             # Otherwise, apply all filters (state, city, and region)
-                             (row['state'].lower() == state.lower() and
-                              (row['aggr_param'].lower() == 'city' and city.lower() in row['aggr_value'].lower()) or
+
+                             (row['state'].lower() == state.lower() and (row['aggr_param'].lower() == 'city' and city.lower() in row['aggr_value'].lower()) or
                               (row['aggr_param'].lower() == 'region' and region.lower() in row['aggr_value'].lower())))
                     )
                 ]

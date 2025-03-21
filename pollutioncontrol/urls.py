@@ -19,5 +19,9 @@ from django.urls import path
 from pollutionApp.pollution import *
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('get_pollutiondata/',GetAirQuality.as_view())
+    path('get_pollutiondata/',GetAirQuality.as_view()),
+    path('get_states/', GetStates.as_view()),
+    path('get_cities/', GetCities.as_view()),
+    path('get_regions/', GetRegions.as_view()),
+
 ]
