@@ -48,7 +48,7 @@ class GetAirQuality(APIView):
                 #     row for row in data
                 #     # if (city.lower() in row['aggr_value'].lower() if city else True) and
                 #     #    (region.lower() in row['aggr_value'].lower() if region else True)
-                #     if ( state !== 'All States' and  row['state'.lower ==  and state]) or
+                #     if ( state !== 'allstates' and  row['state'.lower ==  and state]) or
                 #     (row['aggr_param'].lower() == 'city' and city.lower() in row['aggr_value'].lower() and city ) or
                 #        (row['aggr_param'].lower() == 'region' and region.lower() in row['aggr_value'].lower() and region)
                 # ]
@@ -56,20 +56,20 @@ class GetAirQuality(APIView):
                 # filtered_data = [
                 #     row for row in data
                 #     if (
-                #             (state.lower() == 'all states' or row['state'].lower() == state.lower()) and
-                #             ((city.lower() == 'all cities' or (row['aggr_param'].lower() == 'city' and city.lower() in row['aggr_value'].lower())) or
-                #             (region.lower() == 'all regions' or (row['aggr_param'].lower() == 'region' and region.lower() in row['aggr_value'].lower())))
+                #             (state.lower() == 'allstates' or row['state'].lower() == state.lower()) and
+                #             ((city.lower() == 'allcities' or (row['aggr_param'].lower() == 'city' and city.lower() in row['aggr_value'].lower())) or
+                #             (region.lower() == 'allregions' or (row['aggr_param'].lower() == 'region' and region.lower() in row['aggr_value'].lower())))
                 #     )
                 # ]
                 filtered_data = [
                     row for row in data
                     if (
-                        # If state is 'all states', no filtering is applied for cities or regions
-                            (state.lower() == 'all states') or
-                            # If city is 'all cities', filter only on state and city (ignore region)
-                            (city.lower() == 'all cities' and row['state'].lower() == state.lower()) or
-                            # If region is 'all regions', filter on state, city, and region
-                            (region.lower() == 'all regions' and
+                        # If state is 'allstates', no filtering is applied for cities or regions
+                            (state.lower() == 'allstates') or
+                            # If city is 'allcities', filter only on state and city (ignore region)
+                            (city.lower() == 'allcities' and row['state'].lower() == state.lower()) or
+                            # If region is 'allregions', filter on state, city, and region
+                            (region.lower() == 'allregions' and
                              row['state'].lower() == state.lower() and
                              (row['aggr_param'].lower() == 'city' and city.lower() in row['aggr_value'].lower()) or
                              # (row['aggr_param'].lower() == 'region' and region.lower() in row['aggr_value'].lower())) or
