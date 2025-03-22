@@ -11,7 +11,7 @@ get_regions = """
             """
 get_pollutants_data = """
  SELECT start, "end", state, count_pollutants_co2, sum_pollutants_co2, avg_pollutants_co2, aggr_param, aggr_value 
-    FROM public.pocairpollution_integration_persist 
-    WHERE "end" <= (SELECT MAX("end") FROM public.pocairpollution_integration_persist)
-    AND start >= (SELECT MAX("end") FROM public.pocairpollution_integration_persist) - interval %s
+    FROM public.pocairpollution_integration_persist_20_03_1 
+    WHERE "end" <= (SELECT MAX("end") FROM public.pocairpollution_integration_persist_20_03_1)
+    AND start >= (SELECT MAX("end") FROM public.pocairpollution_integration_persist_20_03_1) - interval %s
 """

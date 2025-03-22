@@ -58,8 +58,8 @@ class GetRegions(APIView):
                 regions = []
                 for row in rows:
                     regions.append({
-                        'city_id': row[0],
-                        'city_name': row[1]
+                        'region_id': row[0],
+                        'region_name': row[1]
                     })
                 return JsonResponse(regions, safe=False)
         except Exception as e:
