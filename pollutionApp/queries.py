@@ -49,7 +49,8 @@ WHERE
         OR (p.aggr_param = 'Region' AND p.aggr_value = %s)
     )
     AND p.start >= m.max_end - interval %s
-    AND p.end <= m.max_end;
+    AND p.end <= m.max_end
+    ORDER BY p.start, p.end ASC;
 
 """
 
