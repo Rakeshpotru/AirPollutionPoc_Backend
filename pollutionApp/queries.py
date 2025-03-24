@@ -34,18 +34,18 @@ JOIN
     max_end_date m ON p."end" <= m.max_end
 WHERE 
     -- State filter (if 'allstates' is passed, no state filter)
-    (%s = 'allstates' OR p.state = %s)
+    (%s = 'AllStates' OR p.state = %s)
     
     -- City filter (if 'allcities' is passed, no city filter)
     AND (
-        %s = 'allcities' 
+        %s = 'AllCities' 
         OR (p.aggr_param = 'City' AND p.aggr_value IN (SELECT city_name FROM public.cities WHERE state_name = %s))
         OR (p.aggr_param = 'Region' AND p.aggr_value IN (SELECT region_name FROM public.regions WHERE city_name = %s))
     )
     
     -- Region filter (if 'allregions' is passed, no region filter)
     AND (
-        %s = 'allregions' 
+        %s = 'AllRegions' 
         OR (p.aggr_param = 'Region' AND p.aggr_value = %s)
     )
     AND p.start >= m.max_end - interval %s
